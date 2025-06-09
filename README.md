@@ -28,6 +28,10 @@ x BONUS: Write unit tests for your backend code using Django's testing framework
 
 Frontend (React):
 x Create a user interface using React to interact with the backend API.
-x Implement functionality to list tasks, create new tasks, update existing tasks, and delete tasks.
-Use proper state management techniques and keep the UI responsive.
+x Implement functionality to:
+  x list tasks
+  x create new tasks
+  x update existing tasks
+  x delete tasks
+x Use proper state management techniques and keep the UI responsive.
 BONUS: Write a unit test for your frontend components using Jest or any other testing library of your choice.
