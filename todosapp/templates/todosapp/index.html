@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Todomanager</title>
+    </head>
+    <body>
+        <h1>Todomanager</h1>
+        
+        
+        {% if todos %}
+    <ul>
+    {% for todo in todos %}
+        <li><a href="/{{ todo.id }}/">{{ todo.title }}</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+        <p>No todos are available.</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Enter todo title" required>
+        <button type="submit">Add Todo</button>
+    </form>
+    </body>
+</html>
