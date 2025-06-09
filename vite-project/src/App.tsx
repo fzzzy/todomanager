@@ -236,6 +236,13 @@ function App() {
                   }}
                 />
                 <button 
+                  onClick={() => window.location.href = `/${todo.id}/`}
+                  style={{ marginLeft: '10px', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', fontSize: '16px' }}
+                  title="View details"
+                >
+                  🔍
+                </button>
+                <button 
                   onClick={() => handleDelete(todo.id)}
                   style={{ marginLeft: '10px', color: 'red', cursor: 'pointer' }}
                 >
