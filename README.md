@@ -12,16 +12,22 @@ Change into the todomanager directory and run `make`.
 Visit `http://localhost:8000/`
 
 
+Run the tests:
+=====
+Change into the todomanager directory and run `make test`.
+
 Assignment:
 =====
 
 Backend (Python with Django):
-Implement an API using Django ORM for CRUD operations on tasks.
-Ensure proper validation and error handling for API requests.
+x Implement an API using Django ORM for CRUD operations on tasks.
+x Ensure proper validation and error handling for API requests.
 BONUS: Implement authentication and authorization using Django's built-in authentication system.
-BONUS: Write unit tests for your backend code using Django's testing framework.
+x BONUS: Write unit tests for your backend code using Django's testing framework.
+
+
 Frontend (React):
-Create a user interface using React to interact with the backend API.
-Implement functionality to list tasks, create new tasks, update existing tasks, and delete tasks.
+x Create a user interface using React to interact with the backend API.
+x Implement functionality to list tasks, create new tasks, update existing tasks, and delete tasks.
 Use proper state management techniques and keep the UI responsive.
 BONUS: Write a unit test for your frontend components using Jest or any other testing library of your choice.

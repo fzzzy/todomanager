@@ -159,3 +159,44 @@ def delete_todo(request, todo_id):
     
     return HttpResponse("Method not allowed", status=405)
 
+
+def update_title(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id)
+    
+    if request.method == 'POST' or request.method == 'PUT':
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                title = data.get('title')
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        else:
+            title = request.POST.get('title')
+        
+        if title is not None and title.strip():
+            todo.title = title.strip()
+            todo.save()
+            
+            if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
+                return JsonResponse({
+                    'id': todo.id,
+                    'title': todo.title,
+                    'state': todo.state,
+                    'pub_date': todo.pub_date.isoformat()
+                })
+            return redirect('index')
+        else:
+            if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
+                return JsonResponse({'error': 'Title value is required and cannot be empty'}, status=400)
+            return HttpResponse("Title value is required and cannot be empty", status=400)
+    
+    if request.headers.get('Accept') == 'application/json':
+        return JsonResponse({
+            'id': todo.id,
+            'title': todo.title,
+            'state': todo.state,
+            'pub_date': todo.pub_date.isoformat()
+        })
+    
+    return HttpResponse("title for %s." % todo.id)
+

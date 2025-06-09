@@ -341,6 +341,202 @@ class TodoDeleteViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class TodoUpdateTitleViewTest(TestCase):
+    """Test the update_title view"""
+    
+    def setUp(self):
+        self.client = Client()
+        self.todo = Todo.objects.create(
+            title="Original Title",
+            pub_date=timezone.now(),
+            state=False
+        )
+    
+    def test_update_title_post_json(self):
+        """Test updating todo title via POST with JSON data"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': 'Updated Title via JSON'}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['title'], 'Updated Title via JSON')
+        self.assertEqual(data['id'], self.todo.id)
+        self.assertIn('state', data)
+        self.assertIn('pub_date', data)
+        
+        # Verify title was updated in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Updated Title via JSON')
+    
+    def test_update_title_put_json(self):
+        """Test updating todo title via PUT with JSON data"""
+        response = self.client.put(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': 'Updated Title via PUT'}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['title'], 'Updated Title via PUT')
+        
+        # Verify title was updated in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Updated Title via PUT')
+    
+    def test_update_title_form_data(self):
+        """Test updating todo title via form data"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            {'title': 'Updated Title via Form'}
+        )
+        
+        self.assertEqual(response.status_code, 302)  # Redirect after successful update
+        
+        # Verify title was updated in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Updated Title via Form')
+    
+    def test_update_title_with_whitespace(self):
+        """Test updating title with leading/trailing whitespace"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': '   Trimmed Title   '}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['title'], 'Trimmed Title')
+        
+        # Verify title was trimmed and updated in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Trimmed Title')
+    
+    def test_update_title_empty_string(self):
+        """Test updating title with empty string"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': ''}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('error', data)
+        self.assertIn('required', data['error'])
+        
+        # Verify title was not changed in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Original Title')
+    
+    def test_update_title_whitespace_only(self):
+        """Test updating title with only whitespace"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': '   '}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('error', data)
+        
+        # Verify title was not changed in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Original Title')
+    
+    def test_update_title_missing_title(self):
+        """Test POST request without title parameter"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('error', data)
+        
+        # Verify title was not changed in database
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'Original Title')
+    
+    def test_update_title_invalid_json(self):
+        """Test POST request with invalid JSON"""
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data='invalid json',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Invalid JSON')
+    
+    def test_update_title_get_request(self):
+        """Test GET request to update_title view"""
+        response = self.client.get(
+            f'/{self.todo.id}/update_title',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['id'], self.todo.id)
+        self.assertEqual(data['title'], self.todo.title)
+        self.assertIn('state', data)
+        self.assertIn('pub_date', data)
+    
+    def test_update_title_get_request_html(self):
+        """Test GET request to update_title view without JSON accept header"""
+        response = self.client.get(f'/{self.todo.id}/update_title')
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"title for {self.todo.id}")
+    
+    def test_update_title_nonexistent_todo(self):
+        """Test updating title for nonexistent todo"""
+        response = self.client.post(
+            '/999/update_title',
+            data=json.dumps({'title': 'New Title'}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        self.assertEqual(response.status_code, 404)
+    
+    def test_update_title_preserves_other_fields(self):
+        """Test that updating title doesn't affect other fields"""
+        # Set initial state and pub_date
+        original_pub_date = self.todo.pub_date
+        self.todo.state = True
+        self.todo.save()
+        
+        response = self.client.post(
+            f'/{self.todo.id}/update_title',
+            data=json.dumps({'title': 'New Title Only'}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        
+        # Verify only title changed
+        self.todo.refresh_from_db()
+        self.assertEqual(self.todo.title, 'New Title Only')
+        self.assertTrue(self.todo.state)  # State should remain unchanged
+        self.assertEqual(self.todo.pub_date, original_pub_date)  # pub_date should remain unchanged
+
+
 class TodoIntegrationTest(TestCase):
     """Integration tests for todo workflows"""
     
@@ -364,6 +560,18 @@ class TodoIntegrationTest(TestCase):
         # Verify initial state
         self.assertFalse(todo_data['state'])
         
+        # Update todo title
+        title_update_response = self.client.post(
+            f'/{todo_id}/update_title',
+            data=json.dumps({'title': 'Updated Integration Test Todo'}),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        
+        self.assertEqual(title_update_response.status_code, 200)
+        updated_title_data = json.loads(title_update_response.content)
+        self.assertEqual(updated_title_data['title'], 'Updated Integration Test Todo')
+        
         # Update todo state
         update_response = self.client.post(
             f'/{todo_id}/set_state',
@@ -375,6 +583,8 @@ class TodoIntegrationTest(TestCase):
         self.assertEqual(update_response.status_code, 200)
         updated_data = json.loads(update_response.content)
         self.assertTrue(updated_data['state'])
+        # Verify title is still updated
+        self.assertEqual(updated_data['title'], 'Updated Integration Test Todo')
         
         # Delete the todo
         delete_response = self.client.post(
