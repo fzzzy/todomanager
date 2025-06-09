@@ -21,27 +21,26 @@ def index(request):
             except json.JSONDecodeError:
                 return JsonResponse({'error': 'Invalid JSON'}, status=400)
         else:
-            # Handle form POST data
             title = request.POST.get('title')
         
         if title:
             todo = Todo.objects.create(title=title, pub_date=timezone.now())
-            # Return JSON if client accepts JSON
             if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
                 return JsonResponse({
                     'id': todo.id,
                     'title': todo.title,
-                    'pub_date': todo.pub_date.isoformat()
+                    'state': todo.state,
+                'pub_date': todo.pub_date.isoformat()
                 }, status=201)
             return redirect('index')
     
     todos = Todo.objects.order_by("-pub_date")[:5]
     
-    # Return JSON if client accepts JSON
     if request.headers.get('Accept') == 'application/json':
         todos_data = [{
             'id': todo.id,
             'title': todo.title,
+            'state': todo.state,
             'pub_date': todo.pub_date.isoformat()
         } for todo in todos]
         return JsonResponse({'todos': todos_data})
@@ -55,6 +54,48 @@ def index(request):
         return HttpResponse(content, content_type='text/html')
     else:
         raise Http404("Vue app not found. Make sure to run 'make runvite' first.")
+
+
+
+def set_state(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id)
+    
+    if request.method == 'POST':
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                state = data.get('state')
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        else:
+            state = request.POST.get('state')
+        
+        if state is not None:
+            todo.state = state
+            todo.save()
+            
+            if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
+                return JsonResponse({
+                    'id': todo.id,
+                    'title': todo.title,
+                    'state': todo.state,
+                    'pub_date': todo.pub_date.isoformat()
+                })
+            return redirect('index')
+        else:
+            if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
+                return JsonResponse({'error': 'State value is required'}, status=400)
+            return HttpResponse("State value is required", status=400)
+    
+    if request.headers.get('Accept') == 'application/json':
+        return JsonResponse({
+            'id': todo.id,
+            'title': todo.title,
+            'state': getattr(todo, 'state', None),
+            'pub_date': todo.pub_date.isoformat()
+        })
+    
+    return HttpResponse("state for %s." % todo.id)
 
 
 def detail(request, todo_id):

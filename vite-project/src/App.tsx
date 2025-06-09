@@ -6,6 +6,7 @@ import './App.css'
 interface Todo {
   id: number;
   title: string;
+  state: boolean;
 }
 
 function App() {
@@ -65,6 +66,32 @@ function App() {
     }
   };
 
+  const handleStateChange = async (todoId: number, newState: boolean) => {
+    try {
+      const response = await fetch(`/${todoId}/set_state`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          state: newState
+        })
+      });
+      
+      if (response.ok) {
+        const updatedTodo = await response.json();
+        setTodos(prevTodos => 
+          prevTodos.map(todo => 
+            todo.id === todoId ? { ...todo, state: updatedTodo.state } : todo
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error updating todo state:', error);
+    }
+  };
+
   return (
     <>
       <div>
@@ -82,6 +109,11 @@ function App() {
           <ul id="todos-list">
             {todos.map(todo => (
               <li key={todo.id}>
+                <input
+                  type="checkbox"
+                  checked={todo.state}
+                  onChange={(e) => handleStateChange(todo.id, e.target.checked)}
+                />
                 <a href={`/${todo.id}/`}>{todo.title}</a>
               </li>
             ))}
