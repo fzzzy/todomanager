@@ -50,6 +50,9 @@ input[type="checkbox"] {
 
 }
 
+#title-input {
+  margin-right: 1em;
+}
 
 ul {
   list-style-type: none;
