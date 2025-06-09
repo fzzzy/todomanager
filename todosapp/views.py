@@ -61,7 +61,7 @@ def index(request):
             content = f.read()
         return HttpResponse(content, content_type='text/html')
     else:
-        raise Http404("Vue app not found. Make sure to run 'make runvite' first.")
+        raise Http404("vite app not found. Make sure to run 'make runvite' first.")
 
 
 @login_required
@@ -121,8 +121,8 @@ def detail(request, todo_id):
     return render(request, 'todosapp/detail.html', {'todo': todo})
 
 
-def vue_app(request):
-    """Serve the main Vue app (index.html)"""
+def vite_app(request):
+    """Serve the main vite app (index.html)"""
     dist_path = os.path.join(settings.BASE_DIR, 'vite-project', 'dist')
     index_path = os.path.join(dist_path, 'index.html')
     
@@ -131,10 +131,10 @@ def vue_app(request):
             content = f.read()
         return HttpResponse(content, content_type='text/html')
     else:
-        raise Http404("Vue app not found. Make sure to run 'make runvite' first.")
+        raise Http404("vite app not found. Make sure to run 'make runvite' first.")
 
 
-def vue_static(request, path):
+def vite_static(request, path):
     """Serve static files from vite-project/dist"""
     dist_path = os.path.join(settings.BASE_DIR, 'vite-project', 'dist')
     file_path = os.path.join(dist_path, path)

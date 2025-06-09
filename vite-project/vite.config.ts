@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/vue/',
+  base: '/vite/',
   build: {
     outDir: 'dist',
     rollupOptions: {

@@ -12,7 +12,7 @@ urlpatterns = [
     path("<int:todo_id>/set_state", views.set_state, name="set_state"),
     path("<int:todo_id>/update_title", views.update_title, name="update_title"),
     path("<int:todo_id>/delete", views.delete_todo, name="delete_todo"),
-    path("vue/", views.vue_app, name="vue_app"),
-    path("vue/<path:path>", views.vue_static, name="vue_static"),
+    path("vite/", views.vite_app, name="vite_app"),
+    path("vite/<path:path>", views.vite_static, name="vite_static"),
 ]
 
