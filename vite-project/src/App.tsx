@@ -209,19 +209,6 @@ function App() {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1>Todomanager</h1>
-        <button 
-          onClick={handleLogout}
-          style={{ 
-            padding: '8px 16px', 
-            backgroundColor: '#dc3545', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px', 
-            cursor: 'pointer' 
-          }}
-        >
-          Logout
-        </button>
       </div>
       
       <div id="todos-container">
