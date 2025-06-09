@@ -3,6 +3,18 @@ Todoman
 
 Canonical full stack to do list application using Django and the Django ORM as the backend and react as the front end.
 
+
+Running:
+=====
+
+Change into the todomanager directory and run `make`.
+
+Visit `http://localhost:8000/`
+
+
+Assignment:
+=====
+
 Backend (Python with Django):
 Implement an API using Django ORM for CRUD operations on tasks.
 Ensure proper validation and error handling for API requests.
