@@ -46,8 +46,15 @@ def index(request):
         } for todo in todos]
         return JsonResponse({'todos': todos_data})
     
-    context = {"todos": todos}
-    return render(request, "todosapp/index.html", context)
+    dist_path = os.path.join(settings.BASE_DIR, 'vite-project', 'dist')
+    index_path = os.path.join(dist_path, 'index.html')
+    
+    if os.path.exists(index_path):
+        with open(index_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/html')
+    else:
+        raise Http404("Vue app not found. Make sure to run 'make runvite' first.")
 
 
 def detail(request, todo_id):
