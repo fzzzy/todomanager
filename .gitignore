@@ -4,4 +4,4 @@ todomanager-venv
 **/__pycache__/*
 **/migrations/*
 node_modules
-
+db.sqlite3
