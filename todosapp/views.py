@@ -144,3 +144,18 @@ def vue_static(request, path):
     else:
         raise Http404("File not found")
 
+def delete_todo(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id)
+    
+    if request.method == 'POST' or request.method == 'DELETE':
+        todo.delete()
+        
+        if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
+            return JsonResponse({'message': 'Todo deleted successfully'}, status=200)
+        return redirect('index')
+    
+    if request.headers.get('Accept') == 'application/json':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    return HttpResponse("Method not allowed", status=405)
+

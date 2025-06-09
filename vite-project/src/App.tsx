@@ -92,6 +92,23 @@ function App() {
     }
   };
 
+  const handleDelete = async (todoId: number) => {
+    try {
+      const response = await fetch(`/${todoId}/delete`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      }
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
+
   return (
     <>
       <div>
@@ -115,6 +132,12 @@ function App() {
                   onChange={(e) => handleStateChange(todo.id, e.target.checked)}
                 />
                 <a href={`/${todo.id}/`}>{todo.title}</a>
+                <button 
+                  onClick={() => handleDelete(todo.id)}
+                  style={{ marginLeft: '10px', color: 'red', cursor: 'pointer' }}
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
