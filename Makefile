@@ -1,15 +1,15 @@
 
 
-.PHONY: all run clean migrate
+.PHONY: all run clean migrate makemigrations
 
 
 
-all: todomanager-venv run
-	echo "hello"
+all: run
+	echo "Ran todomanager."
 
 
 clean:
-	rm -rf todoman-venv todoman.egg-info
+	rm -rf todomanager-venv todomanager.egg-info vite-project/node_modules
 
 
 todomanager-venv:
@@ -17,8 +17,23 @@ todomanager-venv:
 	. todomanager-venv/bin/activate && pip install -e .
 
 
-run: todomanager-venv
+vite-project/node_modules:
+	cd vite-project && npm install
+
+
+run:
+	trap 'kill 0' INT TERM; \
+    make rundjango & \
+    make runvite & \
+	wait
+
+
+rundjango: todomanager-venv
 	. todomanager-venv/bin/activate && python3 manage.py runserver
+
+
+runvite: vite-project/node_modules
+	cd vite-project && npm run build
 
 
 

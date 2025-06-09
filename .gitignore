@@ -3,4 +3,5 @@ todomanager.egg-info
 todomanager-venv
 **/__pycache__/*
 **/migrations/*
+node_modules
 
