@@ -43,4 +43,4 @@ Frontend (React):
     - x update existing tasks
     - x delete tasks
   - x Use proper state management techniques and keep the UI responsive.
-  - BONUS: Write a unit test for your frontend components using Jest or any other testing library of your choice.
+  - x BONUS: Write a unit test for your frontend components using Jest or any other testing library of your choice.

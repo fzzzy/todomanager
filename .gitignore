@@ -5,3 +5,4 @@ todomanager-venv
 **/migrations/*
 node_modules
 db.sqlite3
+**/coverage/*

@@ -46,5 +46,13 @@ makemigrations: todomanager-venv
 	. todomanager-venv/bin/activate && python3 manage.py makemigrations
 
 
-test:
+test: testvite testdjango
+	echo "Ran tests."
+
+
+testvite:
+	cd vite-project && npm run test
+
+
+testdjango:
 	source todomanager-venv/bin/activate && python3 manage.py test todosapp -v 2

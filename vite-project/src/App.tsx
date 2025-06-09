@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 interface Todo {
@@ -13,6 +11,11 @@ function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [editingTitles, setEditingTitles] = useState<{[key: number]: string}>({});
+
+  const getTitleValue = (todoId: number, originalTitle: string): string => {
+    const editingTitle = editingTitles[todoId];
+    return editingTitle !== undefined ? editingTitle : originalTitle;
+  };
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -119,25 +122,25 @@ function App() {
 
   const handleTitleBlur = async (todoId: number) => {
     const newTitle = editingTitles[todoId];
+    
+    // If not currently editing, nothing to do
     if (newTitle === undefined) return;
 
     const trimmedTitle = newTitle.trim();
-    if (!trimmedTitle) {
-      // Reset to original title if empty
-      const originalTodo = todos.find(todo => todo.id === todoId);
-      if (originalTodo) {
-        setEditingTitles(prev => {
-          const updated = { ...prev };
-          delete updated[todoId];
-          return updated;
-        });
-      }
+    const originalTodo = todos.find(todo => todo.id === todoId);
+    
+    if (!trimmedTitle || !originalTodo) {
+      // Reset to original title if empty - just clear editing state
+      setEditingTitles(prev => {
+        const updated = { ...prev };
+        delete updated[todoId];
+        return updated;
+      });
       return;
     }
 
     // Check if title actually changed
-    const originalTodo = todos.find(todo => todo.id === todoId);
-    if (originalTodo && originalTodo.title === trimmedTitle) {
+    if (originalTodo.title === trimmedTitle) {
       // No change, just clear editing state
       setEditingTitles(prev => {
         const updated = { ...prev };
@@ -186,14 +189,6 @@ function App() {
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <h1>Todomanager</h1>
       
       <div id="todos-container">
@@ -208,7 +203,7 @@ function App() {
                 />
                 <input
                   type="text"
-                  value={editingTitles[todo.id] !== undefined ? editingTitles[todo.id] : todo.title}
+                  value={getTitleValue(todo.id, todo.title)}
                   onChange={(e) => handleTitleChange(todo.id, e.target.value)}
                   onBlur={() => handleTitleBlur(todo.id)}
                   style={{ 
