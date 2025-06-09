@@ -12,6 +12,7 @@ interface Todo {
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
+  const [editingTitles, setEditingTitles] = useState<{[key: number]: string}>({});
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -109,6 +110,80 @@ function App() {
     }
   };
 
+  const handleTitleChange = (todoId: number, newTitle: string) => {
+    setEditingTitles(prev => ({
+      ...prev,
+      [todoId]: newTitle
+    }));
+  };
+
+  const handleTitleBlur = async (todoId: number) => {
+    const newTitle = editingTitles[todoId];
+    if (newTitle === undefined) return;
+
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) {
+      // Reset to original title if empty
+      const originalTodo = todos.find(todo => todo.id === todoId);
+      if (originalTodo) {
+        setEditingTitles(prev => {
+          const updated = { ...prev };
+          delete updated[todoId];
+          return updated;
+        });
+      }
+      return;
+    }
+
+    // Check if title actually changed
+    const originalTodo = todos.find(todo => todo.id === todoId);
+    if (originalTodo && originalTodo.title === trimmedTitle) {
+      // No change, just clear editing state
+      setEditingTitles(prev => {
+        const updated = { ...prev };
+        delete updated[todoId];
+        return updated;
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/${todoId}/update_title`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          title: trimmedTitle
+        })
+      });
+      
+      if (response.ok) {
+        const updatedTodo = await response.json();
+        setTodos(prevTodos => 
+          prevTodos.map(todo => 
+            todo.id === todoId ? { ...todo, title: updatedTodo.title } : todo
+          )
+        );
+        // Clear editing state
+        setEditingTitles(prev => {
+          const updated = { ...prev };
+          delete updated[todoId];
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error updating todo title:', error);
+      // Reset to original title on error
+      setEditingTitles(prev => {
+        const updated = { ...prev };
+        delete updated[todoId];
+        return updated;
+      });
+    }
+  };
+
   return (
     <>
       <div>
@@ -131,7 +206,20 @@ function App() {
                   checked={todo.state}
                   onChange={(e) => handleStateChange(todo.id, e.target.checked)}
                 />
-                <a href={`/${todo.id}/`}>{todo.title}</a>
+                <input
+                  type="text"
+                  value={editingTitles[todo.id] !== undefined ? editingTitles[todo.id] : todo.title}
+                  onChange={(e) => handleTitleChange(todo.id, e.target.value)}
+                  onBlur={() => handleTitleBlur(todo.id)}
+                  style={{ 
+                    border: 'none', 
+                    background: 'transparent', 
+                    fontSize: 'inherit',
+                    marginLeft: '8px',
+                    marginRight: '8px',
+                    minWidth: '200px'
+                  }}
+                />
                 <button 
                   onClick={() => handleDelete(todo.id)}
                   style={{ marginLeft: '10px', color: 'red', cursor: 'pointer' }}
