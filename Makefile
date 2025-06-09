@@ -9,7 +9,7 @@ all: run
 
 
 clean:
-	rm -rf todomanager-venv todomanager.egg-info vite-project/node_modules
+	rm -rf todomanager-venv todomanager.egg-info vite-project/node_modules db.sqlite3
 
 
 todomanager-venv:
