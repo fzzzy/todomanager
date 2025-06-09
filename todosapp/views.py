@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import Http404, HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 import json
 
 from todos import settings
@@ -11,6 +13,7 @@ from todos import settings
 from .models import Todo
 
 
+@login_required
 def index(request):
     if request.method == 'POST':
         # Handle JSON POST data
@@ -24,17 +27,22 @@ def index(request):
             title = request.POST.get('title')
         
         if title:
-            todo = Todo.objects.create(title=title, pub_date=timezone.now())
+            todo = Todo.objects.create(
+                user=request.user,
+                title=title, 
+                pub_date=timezone.now()
+            )
             if request.headers.get('Accept') == 'application/json' or request.content_type == 'application/json':
                 return JsonResponse({
                     'id': todo.id,
                     'title': todo.title,
                     'state': todo.state,
-                'pub_date': todo.pub_date.isoformat()
+                    'pub_date': todo.pub_date.isoformat()
                 }, status=201)
             return redirect('index')
     
-    todos = Todo.objects.order_by("-pub_date")[:5]
+    # Get todos for the current user only
+    todos = Todo.objects.filter(user=request.user).order_by("-pub_date")[:5]
     
     if request.headers.get('Accept') == 'application/json':
         todos_data = [{
@@ -56,9 +64,9 @@ def index(request):
         raise Http404("Vue app not found. Make sure to run 'make runvite' first.")
 
 
-
+@login_required
 def set_state(request, todo_id):
-    todo = get_object_or_404(Todo, pk=todo_id)
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     
     if request.method == 'POST':
         if request.content_type == 'application/json':
@@ -98,8 +106,9 @@ def set_state(request, todo_id):
     return HttpResponse("state for %s." % todo.id)
 
 
+@login_required
 def detail(request, todo_id):
-    todo = get_object_or_404(Todo, pk=todo_id)
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     
     # Return JSON if client accepts JSON
     if request.headers.get('Accept') == 'application/json':
@@ -109,7 +118,7 @@ def detail(request, todo_id):
             'pub_date': todo.pub_date.isoformat()
         })
     
-    return HttpResponse("You're looking at todo %s." % todo.id)
+    return render(request, 'todosapp/detail.html', {'todo': todo})
 
 
 def vue_app(request):
@@ -144,8 +153,9 @@ def vue_static(request, path):
     else:
         raise Http404("File not found")
 
+@login_required
 def delete_todo(request, todo_id):
-    todo = get_object_or_404(Todo, pk=todo_id)
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     
     if request.method == 'POST' or request.method == 'DELETE':
         todo.delete()
@@ -160,8 +170,9 @@ def delete_todo(request, todo_id):
     return HttpResponse("Method not allowed", status=405)
 
 
+@login_required
 def update_title(request, todo_id):
-    todo = get_object_or_404(Todo, pk=todo_id)
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     
     if request.method == 'POST' or request.method == 'PUT':
         if request.content_type == 'application/json':

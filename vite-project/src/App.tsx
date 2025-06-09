@@ -187,9 +187,42 @@ function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/logout/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Redirect to login page or reload the page
+        window.location.href = '/login/';
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <>
-      <h1>Todomanager</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>Todomanager</h1>
+        <button 
+          onClick={handleLogout}
+          style={{ 
+            padding: '8px 16px', 
+            backgroundColor: '#dc3545', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Logout
+        </button>
+      </div>
       
       <div id="todos-container">
         {todos.length > 0 ? (
@@ -240,6 +273,13 @@ function App() {
         />
         <button type="submit">Add Todo</button>
       </form>
+
+      <button 
+        onClick={handleLogout}
+        style={{ marginTop: '20px', color: 'blue', cursor: 'pointer' }}
+      >
+        Logout
+      </button>
     </>
   )
 }

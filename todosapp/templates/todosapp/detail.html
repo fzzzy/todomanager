@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ todo.title }} - Todomanager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        .todo-detail {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .todo-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .todo-date {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .todo-status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1 style="margin: 0;">Todo Detail</h1>
+            <div style="color: #666;">Welcome, {{ user.username }}!</div>
+        </div>
+        <div>
+            <a href="{% url 'index' %}" class="back-btn">← Back to List</a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="todo-detail">
+        <div class="todo-title">{{ todo.title }}</div>
+        <div class="todo-date">Created: {{ todo.pub_date|date:"F j, Y, g:i a" }}</div>
+        <div class="todo-status {% if todo.state %}status-completed{% else %}status-pending{% endif %}">
+            {% if todo.state %}
+                ✓ Completed
+            {% else %}
+                ⏳ Pending
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
