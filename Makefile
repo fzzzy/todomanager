@@ -45,3 +45,6 @@ migrate: todomanager-venv
 makemigrations: todomanager-venv
 	. todomanager-venv/bin/activate && python3 manage.py makemigrations
 
+
+test:
+	source todomanager-venv/bin/activate && python3 manage.py test todosapp -v 2
