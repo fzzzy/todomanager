@@ -28,7 +28,7 @@ Backend (Python with Django):
 
   - x Implement an API using Django ORM for CRUD operations on tasks.
   - x Ensure proper validation and error handling for API requests.
-  - BONUS: Implement authentication and authorization using Django's built-in authentication system.
+  - x BONUS: Implement authentication and authorization using Django's built-in authentication system.
   - x BONUS: Write unit tests for your backend code using Django's testing framework.
 
 
