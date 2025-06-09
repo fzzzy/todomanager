@@ -1,4 +1,4 @@
-Todoman
+Todomanager
 =====
 
 Canonical full stack to do list application using Django and the Django ORM as the backend and react as the front end.
