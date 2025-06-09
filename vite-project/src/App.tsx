@@ -1,9 +1,70 @@
-// import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+interface Todo {
+  id: number;
+  title: string;
+}
+
 function App() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [title, setTitle] = useState('');
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await fetch('/', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const todosData = await response.json();
+          setTodos(todosData.todos);
+        }
+      } catch (error) {
+        console.error('Error fetching todos:', error);
+      }
+    };
+
+    fetchTodos();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      alert('Please enter a todo title');
+      return;
+    }
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          title: trimmedTitle
+        })
+      });
+      
+      if (response.ok) {
+        const newTodo = await response.json();
+        setTodos(prevTodos => [...prevTodos, newTodo]);
+        setTitle('');
+      }
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
+  };
+
   return (
     <>
       <div>
@@ -15,9 +76,32 @@ function App() {
         </a>
       </div>
       <h1>Todomanager</h1>
-      <p>
-        Hello, World!
-      </p>
+      
+      <div id="todos-container">
+        {todos.length > 0 ? (
+          <ul id="todos-list">
+            {todos.map(todo => (
+              <li key={todo.id}>
+                <a href={`/${todo.id}/`}>{todo.title}</a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p id="no-todos">No todos are available.</p>
+        )}
+      </div>
+
+      <form id="todo-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          id="title-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter todo title"
+          required
+        />
+        <button type="submit">Add Todo</button>
+      </form>
     </>
   )
 }
